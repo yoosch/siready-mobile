@@ -1,9 +1,10 @@
 {
   "expo": {
-    "name": "my-app",
-    "slug": "my-app",
+    "name": "siready-app",
+    "slug": "siready-app",
     "version": "1.0.0",
     "orientation": "portrait",
+    "entryPoint": "./app/(tabs)/homescreen.tsx",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
