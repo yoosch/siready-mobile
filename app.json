@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "siready-app",
-    "slug": "siready-app",
+    "name": "Siready",
+    "slug": "Siready",
     "version": "1.0.0",
     "orientation": "portrait",
-    "entryPoint": "./app/(tabs)/homescreen.tsx",
-    "icon": "./assets/images/icon.png",
+    "entryPoint": "./app/LoginScreen.tsx",
+    "icon": "./assets/images/logo.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
@@ -17,10 +17,15 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.siready",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -40,6 +45,11 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "4b71f497-9b0d-455b-9e6e-dc418c41ad66"
+      }
     }
   }
 }

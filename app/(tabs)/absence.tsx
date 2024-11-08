@@ -56,12 +56,6 @@ export default function Home() {
 
   return (
     <SafeAreaView style={StyleSheet.absoluteFillObject}>
-      <Stack.Screen
-        options={{
-          title: "Overview",
-          headerShown: false,
-        }}
-      />
       {Platform.OS === "android" ? <StatusBar hidden /> : null}
 
       <CameraView
