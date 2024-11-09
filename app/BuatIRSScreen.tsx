@@ -1,18 +1,52 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { RadioButton } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { API_BASE_URL } from '../config';
 
 const BuatIrsScreen = () => {
   const [searchText, setSearchText] = useState('');
-  const [selectedClasses, setSelectedClasses] = useState({
-    aljabar_linear: '',
-    organisasi_arsitektur: '',
-  });
+  const [selectedClasses, setSelectedClasses] = useState({});
+  const [courses, setCourses] = useState([]);
+
+  // Function to fetch data from the API
+  useEffect(() => {
+    const fetchData = async () => {
+        try {
+
+          const token = await AsyncStorage.getItem('userToken');
+
+            const response = await fetch(`${API_BASE_URL}/api/buat-irs`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            });
+            const result = await response.json();
+            console.log(result);
+            console.log(result.data);
+            
+            // Update state with the fetched data
+            setCourses(result.data);
+            setSelectedClasses(result.selectedClass);
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
+    };
+
+    fetchData();
+}, []);
+
+  console.log('ini coruse');
+  console.log(courses);
 
   const handleSelectClass = (courseKey, className) => {
     setSelectedClasses(prevState => ({ ...prevState, [courseKey]: className }));
   };
+
+  console.log('ini selectedClasses');
+  console.log(selectedClasses);
 
   return (
     <ScrollView style={styles.container}>
@@ -29,129 +63,36 @@ const BuatIrsScreen = () => {
         </View>
       </View>
 
-      {/* Aljabar Linear */}
-      <View style={styles.courseCard}>
-        <Text style={styles.courseName}>Aljabar Linear - PAIK6204 (3 SKS)</Text>
+      {/* Render courses dynamically */}
+      {courses.filter(course => course.matakuliah.toLowerCase().includes(searchText.toLowerCase())).map(course => (
+      <View key={course.kodemk} style={styles.courseCard}>
+        <Text style={styles.courseName}>{`${course.matakuliah} - ${course.kodemk} (${course.sks} SKS)`}</Text>
         <RadioButton.Group
-          onValueChange={value => handleSelectClass('aljabar_linear', value)}
-          value={selectedClasses.aljabar_linear}
+          onValueChange={value => handleSelectClass(course.kodemk, value)}
+          value={selectedClasses[course.kodemk] || ''}
         >
-          <View style={styles.classRow}>
+          {course.kelas.map(classItem => (
             <TouchableOpacity
+              key={classItem.id}
               style={styles.classContainer}
-              onPress={() => handleSelectClass('aljabar_linear', 'A')}
+              onPress={() => handleSelectClass(course.kodemk, classItem.id)}
             >
               <View style={styles.radioOption}>
-                <RadioButton value="A" color="#3B82F6" status={selectedClasses.aljabar_linear === 'A' ? 'checked' : 'unchecked'} />
+                <RadioButton
+                  value={classItem.id}
+                  color="#3B82F6"
+                  status={selectedClasses[course.kodemk] === classItem.id ? 'checked' : 'unchecked'}
+                />
                 <View>
-                  <Text style={styles.radioLabel}>A</Text>
-                  <Text style={styles.classTime}>Senin, 13:00 - 15:00</Text>
+                  <Text style={styles.radioLabel}>{classItem.kelas}</Text>
+                  <Text style={styles.classTime}>{`${classItem.hari}, ${classItem.jam}`}</Text>
                 </View>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.classContainer}
-              onPress={() => handleSelectClass('aljabar_linear', 'B')}
-            >
-              <View style={styles.radioOption}>
-                <RadioButton value="B" color="#3B82F6" status={selectedClasses.aljabar_linear === 'B' ? 'checked' : 'unchecked'} />
-                <View>
-                  <Text style={styles.radioLabel}>B</Text>
-                  <Text style={styles.classTime}>Selasa, 09:00 - 11:00</Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.classRow}>
-            <TouchableOpacity
-              style={styles.classContainer}
-              onPress={() => handleSelectClass('aljabar_linear', 'C')}
-            >
-              <View style={styles.radioOption}>
-                <RadioButton value="C" color="#3B82F6" status={selectedClasses.aljabar_linear === 'C' ? 'checked' : 'unchecked'} />
-                <View>
-                  <Text style={styles.radioLabel}>C</Text>
-                  <Text style={styles.classTime}>Rabu, 08:00 - 10:00</Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.classContainer}
-              onPress={() => handleSelectClass('aljabar_linear', 'D')}
-            >
-              <View style={styles.radioOption}>
-                <RadioButton value="D" color="#3B82F6" status={selectedClasses.aljabar_linear === 'D' ? 'checked' : 'unchecked'} />
-                <View>
-                  <Text style={styles.radioLabel}>D</Text>
-                  <Text style={styles.classTime}>Kamis, 14:00 - 16:00</Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-          </View>
+          ))}
         </RadioButton.Group>
       </View>
-
-      {/* Organisasi dan Arsitektur Komputer */}
-      <View style={styles.courseCard}>
-        <Text style={styles.courseName}>Matematika II - PAIK6202 (3 SKS)</Text>
-        <RadioButton.Group
-          onValueChange={value => handleSelectClass('organisasi_arsitektur', value)}
-          value={selectedClasses.organisasi_arsitektur}
-        >
-          <View style={styles.classRow}>
-            <TouchableOpacity
-              style={styles.classContainer}
-              onPress={() => handleSelectClass('organisasi_arsitektur', 'A')}
-            >
-              <View style={styles.radioOption}>
-                <RadioButton value="A" color="#3B82F6" status={selectedClasses.organisasi_arsitektur === 'A' ? 'checked' : 'unchecked'} />
-                <View>
-                  <Text style={styles.radioLabel}>A</Text>
-                  <Text style={styles.classTime}>Senin, 10:00 - 12:00</Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.classContainer}
-              onPress={() => handleSelectClass('organisasi_arsitektur', 'B')}
-            >
-              <View style={styles.radioOption}>
-                <RadioButton value="B" color="#3B82F6" status={selectedClasses.organisasi_arsitektur === 'B' ? 'checked' : 'unchecked'} />
-                <View>
-                  <Text style={styles.radioLabel}>B</Text>
-                  <Text style={styles.classTime}>Selasa, 13:00 - 15:00</Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.classRow}>
-            <TouchableOpacity
-              style={styles.classContainer}
-              onPress={() => handleSelectClass('organisasi_arsitektur', 'C')}
-            >
-              <View style={styles.radioOption}>
-                <RadioButton value="C" color="#3B82F6" status={selectedClasses.organisasi_arsitektur === 'C' ? 'checked' : 'unchecked'} />
-                <View>
-                  <Text style={styles.radioLabel}>C</Text>
-                  <Text style={styles.classTime}>Rabu, 15:00 - 17:00</Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.classContainer}
-              onPress={() => handleSelectClass('organisasi_arsitektur', 'D')}
-            >
-              <View style={styles.radioOption}>
-                <RadioButton value="D" color="#3B82F6" status={selectedClasses.organisasi_arsitektur === 'D' ? 'checked' : 'unchecked'} />
-                <View>
-                  <Text style={styles.radioLabel}>D</Text>
-                  <Text style={styles.classTime}>Kamis, 09:00 - 11:00</Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </RadioButton.Group>
-      </View>
+))}
 
     </ScrollView>
   );
