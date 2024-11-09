@@ -1,5 +1,5 @@
 // app/index.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -18,9 +18,22 @@ const LoginScreen = () => {
     const [password, setPassword] = useState('');
     const navigation = useNavigation();
 
+
+    // Check if user is already logged in
+    useEffect(() => {
+        const checkLoginStatus = async () => {
+            const token = await AsyncStorage.getItem('userToken');
+            if (token) {
+                axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                navigation.navigate('(tabs)');
+            }
+        };
+        checkLoginStatus();
+    }, []);
+
     const handleLogin = async () => {
         try {
-            const response = await axios.post('http://192.168.1.4:8000/api/login', {
+            const response = await axios.post('http://192.168.1.29:8000/api/login', {
                 email,
                 password,
             });

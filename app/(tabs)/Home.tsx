@@ -1,12 +1,19 @@
-import React, { useEffect,useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import React, { useEffect,useState, } from 'react';
+import { View, Text, TouchableOpacity, FlatList, ScrollView, StatusBar, BackHandler, ToastAndroid, Platform } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';  
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import RNExitApp from 'react-native-exit-app'; // Import exit app functionality
 import "../../global.css";
 
 const Home = () => {
+  useEffect(() => {
+    // Show the status bar when this screen is mounted
+    StatusBar.setHidden(false); // Or use <StatusBar hidden={false} />
+  }, []);
+
     const navigation = useNavigation();
     const [isIpkHidden, setIsIpkHidden] = useState(false);
     const [ipkValue, setIpkValue] = useState(null);
@@ -20,7 +27,7 @@ const Home = () => {
 
               const token = await AsyncStorage.getItem('userToken');
 
-                const response = await fetch('http://192.168.1.4:8000/api/dashboard', {
+                const response = await fetch('http://192.168.1.29:8000/api/dashboard', {
                   headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
@@ -31,7 +38,7 @@ const Home = () => {
                 console.log(data);
                 
                 // Update state with the fetched data
-                setUserName(data.name);
+                setUserName(data.nama);
                 setIpkValue(data.ipk);
                 setSksValue(data.sks);
             } catch (error) {
@@ -41,6 +48,32 @@ const Home = () => {
 
         fetchData();
     }, []);
+
+    // const [backPressCount, setBackPressCount] = useState(0);
+
+    // useEffect(() => {
+    //     const handleBackPress = () => {
+    //         if (backPressCount === 1) {
+    //             // Show a prompt or Toast message asking the user to close manually
+    //             if (Platform.OS === 'android') {
+    //                 ToastAndroid.show('Press back again to close', ToastAndroid.SHORT);
+    //             }
+    //             // Reset the counter after a short delay
+    //             setTimeout(() => setBackPressCount(0), 2000);
+    //             return true;
+    //         } else {
+    //             setBackPressCount(1);
+    //             return true;
+    //         }
+    //     };
+
+    //     const backHandler = BackHandler.addEventListener(
+    //         'hardwareBackPress',
+    //         handleBackPress
+    //     );
+
+    //     return () => backHandler.remove();
+    // }, [backPressCount]);
 
     // Dummy data for the schedule
     const schedule = [
@@ -109,7 +142,7 @@ const Home = () => {
             <View className="flex-row justify-between mx-1">
                 <View className="flex-1 items-center bg-gray-800 mr-1 p-4 rounded-lg mb-6">
                     <Text className="text-white font-bold">Semester Studi</Text>
-                    <Text className="text-white text-xl font-bold">5</Text>
+                    <Text className="text-white text-xl font-bold">9</Text>
                 </View>
                 <View className="flex-1 items-center bg-gray-800 ml-1 p-4 rounded-lg mb-6">
                     <Text className="text-white font-bold">IP Semester</Text>

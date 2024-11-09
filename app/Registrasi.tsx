@@ -27,7 +27,7 @@ const RegistrationScreen = () => {
         const token = await AsyncStorage.getItem('userToken');
 
         try {
-            const response = await axios.post('http://192.168.1.4:8000/api/register', {
+            const response = await axios.post('http://192.168.1.29:8000/api/register', {
                 status: status,
             }, {
                 headers: {
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     statusTitle: { fontSize: 24, fontWeight: 'bold', color: '#fff' },
     statusDescription: { color: '#ddd', fontSize: 14, marginBottom: 16 },
     selectButton: {
-        backgroundColor: '#4a90e2',
+        backgroundColor: '#3d71d8',
         paddingVertical: 12,
         borderRadius: 10,
         alignItems: 'center',

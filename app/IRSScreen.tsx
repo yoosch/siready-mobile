@@ -18,7 +18,7 @@ const IRSView = () => {
         const token = await AsyncStorage.getItem('userToken');
 
         // Make the API request with the token in the Authorization header
-        const response = await fetch('http://192.168.1.4:8000/api/irs', {
+        const response = await fetch('http://192.168.1.29:8000/api/irs', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
