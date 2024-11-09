@@ -83,7 +83,7 @@ const Home = () => {
     ];
     const menuItems = [
         { title: 'Registrasi', screen: 'Registrasi', icon: 'app-registration' },
-        { title: 'Buat IRS', screen: 'Buat IRS', icon: 'playlist-add' },
+        { title: 'Buat IRS', screen: 'BuatIRSScreen', icon: 'playlist-add' },
         { title: 'IRS', screen: 'IRSScreen', icon: 'subject' },
         { title: 'KHS', screen: 'KHSScreen', icon: 'summarize' },
         { title: 'Jadwal', screen: 'Schedule', icon: 'calendar-today' },

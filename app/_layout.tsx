@@ -43,6 +43,7 @@ export default function RootLayout() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="Registrasi" />
         <Stack.Screen name="IRSScreen" options={{ title: "IRS" }} />
+        <Stack.Screen name="BuatIRSScreen" options={{ title: "BuatIRS" }} />
         <Stack.Screen name="Schedule" />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
