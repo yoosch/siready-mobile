@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const dummyData = [
   { semester: 1, total_sks: 7, courses: [{ kode:'PAIK6101', name: 'Dasar Pemrograman', class: 'D', time: 'Senin 08:00 - 10:00', sks: 4, semester : 1 }, { kode:'PAIK6102', name: 'Dasar Sistem', class: 'D', time: 'Senin 10:00 - 12:00', sks: 3, semester: 1 }] },
@@ -7,14 +8,41 @@ const dummyData = [
 ];
 
 const IRSView = () => {
+  const [data, setData] = useState([]);
   const [expandedSemester, setExpandedSemester] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Retrieve the token from AsyncStorage
+        const token = await AsyncStorage.getItem('userToken');
+
+        // Make the API request with the token in the Authorization header
+        const response = await fetch('http://192.168.1.4:8000/api/irs', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const result = await response.json();
+        const { data } = result;
+        console.log(data);
+        setData(data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleToggle = (semester) => {
     setExpandedSemester(expandedSemester === semester ? null : semester);
   };
 
   const renderCourse = (course) => (
-    <View key={course.name} style={styles.courseContainer}>
+    <View key={course.kode} style={styles.courseContainer}>
       <Text style={styles.courseTextName}>{course.kode} - {course.name}</Text>
       <Text style={styles.courseTextClass}>Kelas {course.class}</Text>
       <Text style={styles.courseText}>{course.time}</Text>
@@ -25,7 +53,7 @@ const IRSView = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {dummyData.map((item) => (
+      {data.map((item) => (
         <View key={item.semester} style={styles.semesterContainer}>
           <TouchableOpacity onPress={() => handleToggle(item.semester)} style={styles.semesterHeader}>
             <Text style={styles.semesterText}>Semester {item.semester}</Text>

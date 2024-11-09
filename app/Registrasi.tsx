@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, Modal, Dim
 import Lottie from 'lottie-react-native';
 import axios from 'axios';
 import { ColorSpace } from 'react-native-reanimated';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
@@ -22,12 +23,15 @@ const RegistrationScreen = () => {
     //try to fetch data from API using axios https://fakestoreapi.com/products/ and call it
 
     const handleStatusSelection = async (status) => {
+
+        const token = await AsyncStorage.getItem('userToken');
+
         try {
-            const response = await axios.post('http://192.168.1.5:8000/api/register', {
+            const response = await axios.post('http://192.168.1.4:8000/api/register', {
                 status: status,
-                email: 'bobby@gmail.com', // Add email to the request body
             }, {
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 }
             });

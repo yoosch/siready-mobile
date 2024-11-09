@@ -1,5 +1,5 @@
 // app/index.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
@@ -7,16 +7,42 @@ import {
     TouchableOpacity,
     StyleSheet,
     Image,
+    Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const navigation = useNavigation();
 
-    const handleLogin = () => {
-        // Navigate to the MainTabs stack, which contains the tab navigator
-        navigation.navigate('(tabs)');
+    const handleLogin = async () => {
+        try {
+            const response = await axios.post('http://192.168.1.4:8000/api/login', {
+                email,
+                password,
+            });
+
+            console.log(response.data);
+
+            if (response.data.access_token) {
+                // Save the token in AsyncStorage
+                await AsyncStorage.setItem('userToken', response.data.access_token);
+
+                // Set the default header for future requests
+                axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`;
+
+                // Navigate to the MainTabs stack
+                navigation.navigate('(tabs)');
+            } else {
+                Alert.alert('Login failed', 'Invalid credentials. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error during login:', error);
+            Alert.alert('Error', 'An error occurred. Please check your credentials or try again later.');
+        }
     };
 
     return (
@@ -33,12 +59,16 @@ const LoginScreen = () => {
                     placeholder="Enter your email"
                     placeholderTextColor="#ccc"
                     style={styles.input}
+                    value={email}
+                    onChangeText={setEmail}
                 />
                 <TextInput
                     placeholder="Password"
                     placeholderTextColor="#ccc"
                     secureTextEntry
                     style={styles.input}
+                    value={password}
+                    onChangeText={setPassword}
                 />
                 
                 <TouchableOpacity onPress={handleLogin} style={styles.loginButton}>

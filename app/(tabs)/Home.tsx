@@ -1,15 +1,46 @@
-import React, { useState } from 'react';
+import React, { useEffect,useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, ScrollView } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';  
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import "../../global.css";
 
 const Home = () => {
     const navigation = useNavigation();
     const [isIpkHidden, setIsIpkHidden] = useState(false);
-    const [ipkValue] = useState(3.75); // Dummy IPK value
-    const userName = 'Tom Lembong'; // Dummy user name
+    const [ipkValue, setIpkValue] = useState(null);
+    const [sksValue, setSksValue] = useState(null);
+    const [userName, setUserName] = useState('');
+
+    // Function to fetch user data from an API
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+
+              const token = await AsyncStorage.getItem('userToken');
+
+                const response = await fetch('http://192.168.1.4:8000/api/dashboard', {
+                  headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                  },
+                });
+                const result = await response.json();
+                const { data } = result;
+                console.log(data);
+                
+                // Update state with the fetched data
+                setUserName(data.name);
+                setIpkValue(data.ipk);
+                setSksValue(data.sks);
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        };
+
+        fetchData();
+    }, []);
 
     // Dummy data for the schedule
     const schedule = [
@@ -54,7 +85,7 @@ const Home = () => {
             className="items-center p-4"
           >
             <TouchableOpacity onPress={() => setIsIpkHidden(!isIpkHidden)}>
-              <Text className="text-2xl font-bold text-white">{isIpkHidden ? '***' : ipkValue.toFixed(2)}</Text>
+              <Text className="text-2xl font-bold text-white">{isIpkHidden ? '***' : (ipkValue !== null ? ipkValue.toFixed(2) : 'Loading...')}</Text>
               <Text className="text-white">IPK</Text>
             </TouchableOpacity>
           </LinearGradient>
