@@ -6,6 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import RNExitApp from 'react-native-exit-app'; // Import exit app functionality
+import { API_BASE_URL } from '../../config';
 import "../../global.css";
 
 const Home = () => {
@@ -27,7 +28,7 @@ const Home = () => {
 
               const token = await AsyncStorage.getItem('userToken');
 
-                const response = await fetch('http://192.168.1.29:8000/api/dashboard', {
+                const response = await fetch(`${API_BASE_URL}/api/dashboard`, {
                   headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',

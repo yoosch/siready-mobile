@@ -1,29 +1,37 @@
-import React, { useState } from 'react';
+import React, { useEffect,useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from '../config';
 
 const TaskListApp = () => {
   const screenWidth = Dimensions.get('window').width;
+  const [scheduleData, setScheduleData] = useState({});
 
-  const scheduleData = {
-    '1': [
-      { name: "Teori dan Bahasa Otomata", time: "07:00 - 10:00", description: "A303", label: "green" },
-    ],
-    '2': [
-      { name: "Pengembangan Berbasis Platform", time: "13:00 - 14:10", description: "E101", label: "red" },
-    ],
-    '3': [
-      { name: "Pembelajaran Mesin", time: "09:40 - 12:10", description: "E101", label: "green" },
-      { name: "Proyek Perangkat Lunak", time: "15:40 - 17:30", description: "A303", label: "green" },
-    ],
-    '4': [
-      { name: "Komputasi Tersebar dan Paralel", time: "16:40 - 17:30", description: "A303", label: "green" },
-    ],
-    '5': [
-      { name: "Sistem Informasi", time: "07:00 - 09:40", description: "E101", label: "green" },
-    ],
-    // Add more schedules for other days as needed
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Retrieve the token from AsyncStorage
+        const token = await AsyncStorage.getItem('userToken');
+
+        // Make the API request with the token in the Authorization header
+        const response = await fetch(`${API_BASE_URL}/api/jadwal`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const result = await response.json();
+        console.log(result);
+        setScheduleData(result);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const [selectedDay, setSelectedDay] = useState('1');
 

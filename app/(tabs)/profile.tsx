@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import { API_BASE_URL } from '../../config';
 import axios from 'axios';
 
 const ProfileScreen = () => {
@@ -15,7 +16,7 @@ const ProfileScreen = () => {
             try {
                 const token = await AsyncStorage.getItem('userToken');
 
-                const response = await fetch('http://192.168.1.29:8000/api/dashboard', {
+                const response = await fetch(`${API_BASE_URL}/api/dashboard`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
@@ -38,7 +39,7 @@ const ProfileScreen = () => {
     const handleLogout = async () => {
         try {
             await axios.post(
-                'http://192.168.1.29:8000/api/logout',
+                `${API_BASE_URL}/api/logout`,
                 {},
                 { headers: { Authorization: `Bearer ${await AsyncStorage.getItem('userToken')}` } }
             );

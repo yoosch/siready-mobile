@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from '../config';
 
 const dummyData = [
   { semester: 1, total_sks: 7, courses: [{ kode:'PAIK6101', name: 'Dasar Pemrograman', class: 'D', time: 'Senin 08:00 - 10:00', sks: 4, semester : 1 }, { kode:'PAIK6102', name: 'Dasar Sistem', class: 'D', time: 'Senin 10:00 - 12:00', sks: 3, semester: 1 }] },
@@ -18,7 +19,7 @@ const IRSView = () => {
         const token = await AsyncStorage.getItem('userToken');
 
         // Make the API request with the token in the Authorization header
-        const response = await fetch('http://192.168.1.29:8000/api/irs', {
+        const response = await fetch(`${API_BASE_URL}/api/irs`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',

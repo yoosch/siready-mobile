@@ -4,6 +4,7 @@ import Lottie from 'lottie-react-native';
 import axios from 'axios';
 import { ColorSpace } from 'react-native-reanimated';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from '../config';
 
 const { width } = Dimensions.get('window');
 
@@ -27,7 +28,7 @@ const RegistrationScreen = () => {
         const token = await AsyncStorage.getItem('userToken');
 
         try {
-            const response = await axios.post('http://192.168.1.29:8000/api/register', {
+            const response = await axios.post(`${API_BASE_URL}/api/register`, {
                 status: status,
             }, {
                 headers: {
