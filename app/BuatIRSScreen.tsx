@@ -4,6 +4,7 @@ import { RadioButton } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { API_BASE_URL } from '../config';
+import axios from 'axios';
 
 const BuatIrsScreen = () => {
   const [searchText, setSearchText] = useState('');
@@ -41,8 +42,36 @@ const BuatIrsScreen = () => {
   console.log('ini coruse');
   console.log(courses);
 
-  const handleSelectClass = (courseKey, className) => {
+  const handleSelectClass = async (courseKey, className) => {
     setSelectedClasses(prevState => ({ ...prevState, [courseKey]: className }));
+    //call api to save selected class to database post classitem.id
+    console.log('ini courseKey '+courseKey);
+    console.log('ini className '+className);
+
+
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      
+      const response = await axios.post(
+        `${API_BASE_URL}/api/buat-irs`,
+        {
+          kodemk: courseKey,
+          kodejadwal: className
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      
+      console.log('result.data', response.data);
+    } catch (error) {
+      console.log('Error type:', typeof error);
+      console.log('Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    }
+
   };
 
   console.log('ini selectedClasses');
@@ -66,32 +95,43 @@ const BuatIrsScreen = () => {
       {/* Render courses dynamically */}
       {courses.filter(course => course.matakuliah.toLowerCase().includes(searchText.toLowerCase())).map(course => (
       <View key={course.kodemk} style={styles.courseCard}>
-        <Text style={styles.courseName}>{`${course.matakuliah} - ${course.kodemk} (${course.sks} SKS)`}</Text>
-        <RadioButton.Group
-          onValueChange={value => handleSelectClass(course.kodemk, value)}
-          value={selectedClasses[course.kodemk] || ''}
-        >
-          {course.kelas.map(classItem => (
-            <TouchableOpacity
-              key={classItem.id}
-              style={styles.classContainer}
-              onPress={() => handleSelectClass(course.kodemk, classItem.id)}
-            >
-              <View style={styles.radioOption}>
-                <RadioButton
-                  value={classItem.id}
-                  color="#3B82F6"
-                  status={selectedClasses[course.kodemk] === classItem.id ? 'checked' : 'unchecked'}
-                />
-                <View>
-                  <Text style={styles.radioLabel}>{classItem.kelas}</Text>
-                  <Text style={styles.classTime}>{`${classItem.hari}, ${classItem.jam}`}</Text>
+      <Text style={styles.courseName}>{`${course.matakuliah} - ${course.kodemk} (${course.sks} SKS)`}</Text>
+      <RadioButton.Group
+        onValueChange={value => handleSelectClass(course.kodemk, value)}
+        value={selectedClasses[course.kodemk] || ''}
+      >
+        {/* Group classes into rows of two */}
+        {course.kelas.reduce((rows, classItem, index) => {
+          if (index % 2 === 0) {
+            rows.push(course.kelas.slice(index, index + 2));
+          }
+          return rows;
+        }, []).map((classPair, rowIndex) => (
+          <View key={rowIndex} style={styles.classRow}>
+            {classPair.map(classItem => (
+              <TouchableOpacity
+                key={classItem.id}
+                style={styles.classContainer}
+                onPress={() => handleSelectClass(course.kodemk, classItem.id)}
+              >
+                <View style={styles.radioOption}>
+                  <RadioButton
+                    value={classItem.id}
+                    color="#3B82F6"
+                    status={selectedClasses[course.kodemk] === classItem.id ? 'checked' : 'unchecked'}
+                  />
+                  <View>
+                    <Text style={styles.radioLabel}>{classItem.kelas}</Text>
+                    <Text style={styles.classTime}>{`${classItem.hari}, ${classItem.jam}`}</Text>
+                  </View>
                 </View>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </RadioButton.Group>
+              </TouchableOpacity>
+            ))}
+          </View>
+        ))}
+      </RadioButton.Group>
       </View>
+    
 ))}
 
     </ScrollView>
