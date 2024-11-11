@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, } from 'react';
 import { View, Text, TextInput, ScrollView, StyleSheet, TouchableOpacity, Alert, Modal } from 'react-native';
 import { RadioButton } from 'react-native-paper';
 import Lottie from 'lottie-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { API_BASE_URL } from '../config';
 import axios from 'axios';
 
@@ -17,25 +17,28 @@ const BuatIrsScreen = () => {
   const [modalMessage, setModalMessage] = useState('');
 
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = await AsyncStorage.getItem('userToken');
-        const response = await fetch(`${API_BASE_URL}/api/buat-irs`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-        const result = await response.json();
-        setCourses(result.data);
-        setSelectedClasses(result.selectedClass);
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
-    };
-    fetchData();
+  const fetchData = useCallback(async () => {
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      const response = await fetch(`${API_BASE_URL}/api/buat-irs`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      const result = await response.json();
+      setCourses(result.data);
+      setSelectedClasses(result.selectedClass);
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [fetchData])
+  );
 
   const extractTimeRange = (timeRange) => {
     const [start, end] = timeRange.split('-').map(t => t.trim());
