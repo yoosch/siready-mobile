@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   modalContent: {
     width: width * 0.8,
     padding: 20,
-    backgroundColor: "white",
+    backgroundColor: "#1e1e1e",
     borderRadius: 20,
     alignItems: "center",
     shadowColor: "#000",
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
   },
   modalText: {
     fontSize: 18,
-    color: "#333",
+    color: "white",
     marginBottom: 15,
     textAlign: "center",
   },

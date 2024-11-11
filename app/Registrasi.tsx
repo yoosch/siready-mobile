@@ -125,7 +125,7 @@ const RegistrationScreen = () => {
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
                         <Lottie
-                            source={require('@/assets/animations/checklist1.json')}
+                            source={require('@/assets/animations/checklist.json')}
                             autoPlay
                             loop={false}
                             style={styles.lottieAnimation}
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     modalContent: {
         width: width * 0.8,
         padding: 20,
-        backgroundColor: 'white',
+        backgroundColor: '#1E1E1E',
         borderRadius: 20,
         alignItems: 'center',
         shadowColor: '#000',
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     },
     modalText: {
         fontSize: 18,
-        color: '#333',
+        color: 'white',
         marginBottom: 15,
         textAlign: 'center',
     },

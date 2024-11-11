@@ -40,7 +40,7 @@ const TaskListApp = () => {
   };
 
   return (
-    <View style={{ flex: 1, padding: 16, backgroundColor: '#121212' }}>
+    <View style={{ flex: 1, padding: 16, backgroundColor: 'black' }}>
       {/* Header */}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 }}>
         <View>

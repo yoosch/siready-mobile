@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Modal } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import Lottie from 'lottie-react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { API_BASE_URL } from '../config';
-
-const dummyData = [
-  { semester: 1, total_sks: 7, courses: [{ kode: 'PAIK6101', name: 'Dasar Pemrograman', class: 'D', time: 'Senin 08:00 - 10:00', sks: 4 }, { kode: 'PAIK6102', name: 'Dasar Sistem', class: 'D', time: 'Senin 10:00 - 12:00', sks: 3 }] },
-  { semester: 2, total_sks: 6, courses: [{ kode: 'PAIK6203', name: 'Organisasi dan Arsitektur Komputer', class: 'D', time: 'Senin 09:00 - 11:00', sks: 3 }, { kode: 'PAIK6205', name: 'Matematika II', class: 'B', time: 'Rabu 11:00 - 13:00', sks: 3 }] }
-];
 
 const IRSView = () => {
   const [data, setData] = useState([]);
   const [expandedSemester, setExpandedSemester] = useState(null);
   const [refresh, setRefresh] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [isModalToastVisible, setIsModalToastVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,65 +35,102 @@ const IRSView = () => {
     fetchData();
   }, [refresh]);
 
-  console.log(data);
-
   const handleToggle = (semester) => {
     setExpandedSemester(expandedSemester === semester ? null : semester);
   };
 
-  const handleDeleteCourse = async (course) => {
-    Alert.alert(
-      "Confirm Delete",
-      `Are you sure you want to delete ${course.nama}?`,
-      [
-        { text: "Cancel", style: "cancel" },
+  const handleDeleteCourse = (course) => {
+    setSelectedCourse(course);
+    setModalVisible(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      const response = await axios.post(
+        `${API_BASE_URL}/api/delete-irs`,
+        { id: selectedCourse.id },
         {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              const token = await AsyncStorage.getItem('userToken');
-              const response = await axios.post(
-                `${API_BASE_URL}/api/delete-irs`,
-                { id :  course.id },
-                {
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                  },
-                }
-              );
-
-              console.log(response.data);
-              //refresh screen
-              setRefresh((prev) => !prev);
-
-            } catch (error) {
-              console.log('Error:', error);
-            }
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
           },
-        },
-      ]
-    );
+        }
+      );
+
+      console.log(response.data);
+      setModalMessage('Successfully deleted course');
+      setIsModalToastVisible(true);
+      setModalVisible(false);
+      setRefresh((prev) => !prev);
+    } catch (error) {
+      console.log('Error:', error);
+    }
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {data.map((course) => (
-       <View key={course.kode} style={styles.courseContainer}>
-       <View style={styles.courseDetails}>
-        {/* console.log('ini posisi' + course.posisi); */}
-         <Text style={styles.courseText}>{course.posisi} / {course.kapasitas}</Text>
-         <Text style={styles.courseTextName}>{course.kodemk} - {course.nama}</Text>
-         <Text style={styles.courseTextClass}>Kelas {course.kelas.kelas}</Text>
-         {/* <Text style={styles.courseText}>{course.time}</Text> */}
-         <Text style={styles.courseText}>{course.sks} SKS</Text>
-       </View>
-       <TouchableOpacity onPress={() => handleDeleteCourse(course)} style={styles.deleteButton}>
-         <FontAwesome name="trash" size={20} color="#FF5555" />
-       </TouchableOpacity>
-      </View>
+        <View key={course.kode} style={styles.courseContainer}>
+          <View style={styles.courseDetails}>
+            <Text style={styles.courseText}>{course.posisi} / {course.kapasitas}</Text>
+            <Text style={styles.courseTextName}>{course.kodemk} - {course.nama}</Text>
+            <Text style={styles.courseTextClass}>Kelas {course.kelas.kelas}</Text>
+            <Text style={styles.courseText}>{course.sks} SKS</Text>
+          </View>
+          <TouchableOpacity onPress={() => handleDeleteCourse(course)} style={styles.deleteButton}>
+            <FontAwesome name="trash" size={20} color="#FF5555" />
+          </TouchableOpacity>
+        </View>
       ))}
+
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <FontAwesome name="exclamation-triangle" size={40} color="#FF5555" />
+            <Text style={styles.modalTitle}>Confirm Delete</Text>
+            <Text style={styles.modalMessage}>
+              Are you sure you want to delete {selectedCourse?.nama}?
+            </Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.cancelButton}>
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={confirmDelete} style={styles.confirmButton}>
+                <Text style={styles.buttonText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+      visible={isModalToastVisible}
+      transparent
+      animationType="fade"
+      onRequestClose={() => setIsModalToastVisible(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContainer}>
+        <Lottie
+          source={require('@/assets/animations/checklist.json')}
+          autoPlay
+          loop={false}
+          style={styles.lottieAnimation}
+        />
+          <Text style={styles.modalTitle}>Success</Text>
+          <Text style={styles.modalMessage}>{modalMessage}</Text>
+          <TouchableOpacity style={styles.modalButton} onPress={() => setIsModalToastVisible(false)}>
+            <Text style={styles.modalButtonText}>OK</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
     </ScrollView>
   );
 };
@@ -101,33 +138,7 @@ const IRSView = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: '#121212',
-  },
-  semesterContainer: {
-    marginBottom: 20,
-    backgroundColor: '#1e1e1e',
-    borderRadius: 8,
-    padding: 10,
-  },
-  semesterHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
-  },
-  semesterText: {
-    fontSize: 18,
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  sksText: {
-    fontSize: 14,
-    color: '#bbb',
-  },
-  coursesContainer: {
-    marginTop: 10,
+    backgroundColor: 'black',
   },
   courseContainer: {
     flexDirection: 'row',
@@ -158,6 +169,71 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     padding: 8,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  modalContainer: {
+    width: '80%',
+    backgroundColor: '#1e1e1e',
+    borderRadius: 8,
+    padding: 20,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    color: '#FFF',
+    fontWeight: 'bold',
+    marginVertical: 10,
+  },
+  modalMessage: {
+    fontSize: 15,
+    color: '#BBB',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  modalButton: {
+    backgroundColor: '#3B82F6',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  modalButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+  },
+  lottieAnimation: {
+    width: 100,
+    height: 100,
+    marginBottom: 10,
+},
+  cancelButton: {
+    flex: 1,
+    padding: 10,
+    backgroundColor: '#444',
+    borderRadius: 5,
+    marginRight: 5,
+    alignItems: 'center',
+  },
+  confirmButton: {
+    flex: 1,
+    padding: 10,
+    backgroundColor: '#FF5555',
+    borderRadius: 5,
+    marginLeft: 5,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#FFF',
+    fontWeight: 'bold',
   },
 });
 

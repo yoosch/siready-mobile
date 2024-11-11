@@ -184,7 +184,7 @@ const BuatIrsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: 'black',
     padding: 16,
   },
   headerContainer: {
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     paddingHorizontal: 15,
     paddingVertical: 5,
-    width: '50%', // Half-width search bar
+    width: '70%', // Half-width search bar
   },
   searchInput: {
     color: '#FFF',

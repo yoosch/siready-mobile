@@ -78,7 +78,7 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#121212',
+        backgroundColor: 'black',
         justifyContent: 'center', // Centers content vertically
         alignItems: 'center', // Centers content horizontally
     },
