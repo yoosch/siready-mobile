@@ -42,6 +42,7 @@ export default function RootLayout() {
       <Stack initialRouteName={initialRoute}>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="Registrasi" />
+        <Stack.Screen name="DetailIRSScreen" options={{ title: "Detail IRS" }} />
         <Stack.Screen name="IRSScreen" options={{ title: "IRS" }} />
         <Stack.Screen name="BuatIRSScreen" options={{ title: "BuatIRS" }} />
         <Stack.Screen name="Schedule" />
