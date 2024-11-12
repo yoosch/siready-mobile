@@ -19,6 +19,7 @@ const Home = () => {
     const [isIpkHidden, setIsIpkHidden] = useState(false);
     const [ipkValue, setIpkValue] = useState(null);
     const [sksValue, setSksValue] = useState(null);
+    const [semesterValue, setSemesterValue] = useState(null);
     const [userName, setUserName] = useState('');
 
     // Function to fetch user data from an API
@@ -42,6 +43,7 @@ const Home = () => {
                 setUserName(data.nama);
                 setIpkValue(data.ipk);
                 setSksValue(data.sks);
+                setSemesterValue(data.semester_berjalan);
             } catch (error) {
                 console.error('Error fetching user data:', error);
             }
@@ -143,7 +145,7 @@ const Home = () => {
             <View className="flex-row justify-between mx-1">
                 <View className="flex-1 items-center bg-gray-800 mr-1 p-4 rounded-lg mb-6">
                     <Text className="text-white font-bold">Semester Studi</Text>
-                    <Text className="text-white text-xl font-bold">9</Text>
+                    <Text className="text-white text-xl font-bold">{ semesterValue }</Text>
                 </View>
                 <View className="flex-1 items-center bg-gray-800 ml-1 p-4 rounded-lg mb-6">
                     <Text className="text-white font-bold">IP Semester</Text>

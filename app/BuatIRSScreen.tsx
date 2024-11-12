@@ -10,12 +10,35 @@ import axios from 'axios';
 const BuatIrsScreen = () => {
   const [searchText, setSearchText] = useState('');
   const [selectedClasses, setSelectedClasses] = useState({});
+  const [refresh, setRefresh] = useState(false);
   const [conflictedClasses, setConflictedClasses] = useState([]); // Track conflicting classes
   const [courses, setCourses] = useState([]);
+  const [students, setStudents] = useState([]);
   const navigation = useNavigation();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isModalPriorVisible, setIsModalPriorVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
+  const [modalMessagePrior, setModalMessagePrior] = useState('');
 
+  useEffect(() => {
+    const fetchDataMhs = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        const response = await fetch(`${API_BASE_URL}/api/dashboard`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        const result = await response.json();
+        console.log(result);
+        setStudents(result.data);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+    fetchDataMhs();
+  }, [refresh]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -27,6 +50,7 @@ const BuatIrsScreen = () => {
         },
       });
       const result = await response.json();
+      console.log(result);
       setCourses(result.data);
       setSelectedClasses(result.selectedClass);
     } catch (error) {
@@ -70,7 +94,9 @@ const BuatIrsScreen = () => {
     return conflicts.length > 0;
   };
 
+
   const handleSelectClass = async (courseKey, classId) => {
+    const selectedCourse = courses.find(course => course.kodemk === courseKey);
     const selectedClass = courses
       .find(course => course.kodemk === courseKey)
       .kelas.find(cls => cls.id === classId);
@@ -80,6 +106,14 @@ const BuatIrsScreen = () => {
       setIsModalVisible(true);
       return;
     }
+
+    if (students?.semester_berjalan != selectedCourse?.semester) {
+      console.log(students?.semester_berjalan);
+      console.log(selectedCourse?.semester);
+      setModalMessagePrior(`This class doesn't fit your semester.\n Your position may be not safe.`);
+      setIsModalPriorVisible(true);
+    }
+    
   
     setSelectedClasses(prevState => ({ ...prevState, [courseKey]: classId }));
   
@@ -104,28 +138,50 @@ const BuatIrsScreen = () => {
 
   return (
     <ScrollView style={styles.container}>
-          <Modal
-      visible={isModalVisible}
-      transparent
-      animationType="fade"
-      onRequestClose={() => setIsModalVisible(false)}
-    >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContainer}>
-        <Lottie
-          source={require('@/assets/animations/warning.json')}
-          autoPlay
-          loop={false}
-          style={styles.lottieAnimation}
-        />
-          <Text style={styles.modalTitle}>Conflict</Text>
-          <Text style={styles.modalMessage}>{modalMessage}</Text>
-          <TouchableOpacity style={styles.modalButton} onPress={() => setIsModalVisible(false)}>
-            <Text style={styles.modalButtonText}>OK</Text>
-          </TouchableOpacity>
+      <Modal
+        visible={isModalPriorVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsModalPriorVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+          <Lottie
+            source={require('@/assets/animations/warning.json')}
+            autoPlay
+            loop={false}
+            style={styles.lottieAnimation}
+          />
+            <Text style={styles.modalTitle}>Warning</Text>
+            <Text style={styles.modalMessage}>{modalMessagePrior}</Text>
+            <TouchableOpacity style={styles.modalButton} onPress={() => setIsModalPriorVisible(false)}>
+              <Text style={styles.modalButtonText}>OK</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </Modal>
+      </Modal>
+      <Modal
+        visible={isModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+          <Lottie
+            source={require('@/assets/animations/error.json')}
+            autoPlay
+            loop={false}
+            style={styles.lottieAnimation}
+          />
+            <Text style={styles.modalTitle}>Conflict</Text>
+            <Text style={styles.modalMessage}>{modalMessage}</Text>
+            <TouchableOpacity style={styles.modalButton} onPress={() => setIsModalVisible(false)}>
+              <Text style={styles.modalButtonText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       <View style={styles.headerContainer}>
         <View style={styles.searchContainer}>
           <TextInput
